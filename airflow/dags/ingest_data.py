@@ -2,6 +2,7 @@ import os
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateExternalTableOperator
 from dag_utils import download_file
 from dag_utils import transform_csv_parquet
 from dag_utils import upload_to_gcs
@@ -66,4 +67,26 @@ with DAG(
         }
     )
 
-    download_file_task >> transform_to_parquet_task >> upload_to_gsc_task
+    # TODO: create an external table in the bigquery dataset
+    create_external_table_task = BigQueryCreateExternalTableOperator(
+        task_id="create_external_table_task",
+        table_resource={
+            "tableReference": {
+                "projectId": project_id,
+                "datasetId": dataset_id,
+                "tableId": "my_table",
+            },
+            "externalDataConfiguration": {
+                "sourceFormat": "PARQUET",
+                "compression": "NONE",
+                "sourceUris": [
+                    "gs://{}/raw/{}".format(
+                        bucket,
+                        file_downloaded.replace('.csv', '.parquet')
+                        )
+                    ],
+            },
+        },
+    )
+
+    download_file_task >> transform_to_parquet_task >> upload_to_gsc_task >> create_external_table_task

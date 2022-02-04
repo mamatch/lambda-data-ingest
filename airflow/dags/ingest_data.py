@@ -45,7 +45,7 @@ with DAG(
         task_id="transform_to_parquet_task",
         python_callable=transform_csv_parquet,
         op_kwargs={
-            "input_file": file_downloaded
+            "input_file": "{}/{}".format(path_to_local_home, file_downloaded)
         }
         # op_args: Optional[List] = None,
         # templates_dict: Optional[Dict] = None
@@ -57,9 +57,12 @@ with DAG(
         task_id="upload_to_gsc_task",
         python_callable=upload_to_gcs,
         op_kwargs={
-            "bucket_name": ,
-            "object_name": os.path.join(path_to_local_home, file_downloaded.replace('.csv', '.parquet')),
-            "filename": file_downloaded.replace('.csv', '.parquet')
+            "bucket_name": bucket,
+            "object_name": file_downloaded.replace('.csv', '.parquet'),
+            "filename": "{}/{}".format(
+                path_to_local_home,
+                file_downloaded.replace('.csv', '.parquet')
+            )
         }
     )
 

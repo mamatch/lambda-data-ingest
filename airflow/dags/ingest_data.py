@@ -29,6 +29,8 @@ with DAG(
     description="A dag to ingest data",
     default_args=default_args,
     schedule_interval="@daily",
+    catchup=True,
+    max_active_runs=3,
     tags=['test']
 ) as dag:
 

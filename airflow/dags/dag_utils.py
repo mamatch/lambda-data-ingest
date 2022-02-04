@@ -5,13 +5,13 @@ from pyarrow import parquet as pq
 from google.cloud import storage
 
 
-def download_file(url, local_path_to_home, destination_file_path):
+def download_file(url: str, local_path_to_home: str, destination_file_path: str):
     """A function that download from an url
 
     Args:
-        url (string): Th url
-        local_path_to_home (string): The path to the local home
-        destination_file_path (string): path to the destination
+        url (str): Th url
+        local_path_to_home (str): The path to the local home
+        destination_file_path (str): path to the destination
     """
     final_dest_path = os.path.join(local_path_to_home, destination_file_path)
     # Check if the file exists

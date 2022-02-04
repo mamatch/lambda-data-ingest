@@ -4,10 +4,10 @@ ENV AIRFLOW_HOME=/opt/airflow
 
 USER root
 
-RUN sudo apt update -qq && apt install vim -qqq
+RUN sudo apt-get update -qq && apt-get install vim -qqq
 
 COPY requirements.txt .
-RUN pip install -r --no-cache-dir requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 

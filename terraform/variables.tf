@@ -23,7 +23,7 @@ variable "storage_class" {
 variable "bigquery_dataset" {
   description = "bigquery dataset name"
   type        = string
-  default     = "my-dataset"
+  default     = "my_dataset"
 }
 
 variable "credentials" {

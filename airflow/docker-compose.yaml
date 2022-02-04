@@ -60,7 +60,8 @@ x-airflow-common:
     AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: 'google-cloud-platform://?extra__google_cloud_platform__key_path=/.google/credentials/google_credentials.json'
     GOOGLE_APPLICATION_CREDENTIALS: /.google/credentials/google_credentials.json
     PROJECT_ID: 'long-canto-340020'
-    DATASET_ID:
+    DATASET_ID: 'my_dataset'
+    BUCKET_ID: 'data_lake_long-canto-340020'
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs

@@ -15,7 +15,6 @@ So we'll :
 The all will be orchestrate by an airflow server
 ![alt text](img_pipeline.png "The pipeline")
 
-
 # How to setup
 
 ## Pre-requisites
@@ -46,4 +45,5 @@ docker build .
 docker-compose up airflow-init
 docker-compose up
 ```
-With all the services up, you can go to http://localhost:8080 to enter the apache airflow wbserver. By default the credentials are 'airflow' for the login and 'airflow' for the password(to change if you want to put such system in production). You'll see the dags on the dashbard page that you can trigger.
+
+With all the services up, you can go to the [Airflow login page](http://localhost:8080) to enter the apache airflow wbserver. By default the credentials are 'airflow' for the login and 'airflow' for the password(to change if you want to put such system in production). You'll see the dags on the dashbard page that you can trigger.

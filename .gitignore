@@ -1,10 +1,14 @@
+# python optimization
 __pycache__
 
-
+# airflow logs
 airflow/logs/
 
+
+# terraform
 .terraform*
 terraform/terraform*
 
 
+# vscde utilities
 .vscode

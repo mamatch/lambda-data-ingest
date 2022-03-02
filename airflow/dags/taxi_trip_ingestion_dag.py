@@ -2,27 +2,43 @@ import os
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateExternalTableOperator
-from dag_utils import download_file
+from airflow.providers.google.cloud.operators.bigquery import (
+    BigQueryCreateExternalTableOperator,
+)
+from dag_utils import download_file, download_files
 from dag_utils import transform_csv_parquet
 from dag_utils import upload_to_gcs
 
 
 url = "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv"
+
+urls_2019 = [
+    "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2019-{:0>2}.csv".format(
+        month
+    )
+    for month in range(1, 13)
+]
+urls_2020 = [
+    "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2020-{:0>2}.csv".format(
+        month
+    )
+    for month in range(1, 13)
+]
+urls = urls_2019 + urls_2020
 PROJECT_ID = os.environ.get("PROJECT_ID")
 DATASET_ID = os.environ.get("DATASET_ID")
 BUCKET = os.environ.get("BUCKET_ID")
-csv_filename = ((url.split("/"))[-1]).replace('-', '_')
+csv_filename = "yellow_trip_data.csv"
 parquet_filename = csv_filename.replace(".csv", ".parquet")
 
-path_to_local_home = os.environ.get('AIRFLOW_HOME', "/opt/airflow/")
+path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
 
 
 default_args = {
     "owners": "airflow",
     "start_date": days_ago(1),
     "depends_on_past": False,
-    "retries": 1
+    "retries": 1,
 }
 
 
@@ -33,25 +49,23 @@ with DAG(
     schedule_interval="@daily",
     catchup=True,
     max_active_runs=3,
-    tags=['test']
+    tags=["test"],
 ) as dag:
 
     download_file_task = PythonOperator(
         task_id="doawnload_file_task",
-        python_callable=download_file,
+        python_callable=download_files,
         op_kwargs={
-            "url": url,
+            "urls": urls,
             "local_path_to_home": path_to_local_home,
-            "destination_file_path": csv_filename
-        }
+            "destination_file_path": csv_filename,
+        },
     )
 
     transform_to_parquet_task = PythonOperator(
         task_id="transform_to_parquet_task",
         python_callable=transform_csv_parquet,
-        op_kwargs={
-            "input_file": "{}/{}".format(path_to_local_home, csv_filename)
-        }
+        op_kwargs={"input_file": "{}/{}".format(path_to_local_home, csv_filename)}
         # op_args: Optional[List] = None,
         # templates_dict: Optional[Dict] = None
         # templates_exts: Optional[List] = None
@@ -64,11 +78,8 @@ with DAG(
         op_kwargs={
             "bucket_name": BUCKET,
             "object_name": parquet_filename,
-            "filename": "{}/{}".format(
-                path_to_local_home,
-                parquet_filename
-            )
-        }
+            "filename": "{}/{}".format(path_to_local_home, parquet_filename),
+        },
     )
 
     # TODO: create an external table in the bigquery dataset
@@ -83,14 +94,14 @@ with DAG(
             "externalDataConfiguration": {
                 "sourceFormat": "PARQUET",
                 "compression": "NONE",
-                "sourceUris": [
-                    "gs://{}/raw/{}".format(
-                        BUCKET,
-                        parquet_filename
-                        )
-                    ],
+                "sourceUris": ["gs://{}/raw/{}".format(BUCKET, parquet_filename)],
             },
         },
     )
 
-    download_file_task >> transform_to_parquet_task >> upload_to_gsc_task >> create_external_table_task
+    (
+        download_file_task
+        >> transform_to_parquet_task
+        >> upload_to_gsc_task
+        >> create_external_table_task
+    )

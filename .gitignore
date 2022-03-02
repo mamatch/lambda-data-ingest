@@ -12,3 +12,6 @@ terraform/terraform*
 
 # vscde utilities
 .vscode
+.idea
+
+test_folder

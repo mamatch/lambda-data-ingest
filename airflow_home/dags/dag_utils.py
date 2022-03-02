@@ -1,9 +1,10 @@
 import logging
 import os
+
 import pandas as pd
+from google.cloud import storage
 from pyarrow import csv as pv
 from pyarrow import parquet as pq
-from google.cloud import storage
 
 
 def download_file(url: str, local_path_to_home: str, destination_file_path: str):
@@ -17,7 +18,7 @@ def download_file(url: str, local_path_to_home: str, destination_file_path: str)
     final_dest_path = os.path.join(local_path_to_home, destination_file_path)
     # Check if the file exists
     if not os.path.exists(final_dest_path) or (
-        os.path.exists(final_dest_path) and os.path.getsize(final_dest_path) == 0
+            os.path.exists(final_dest_path) and os.path.getsize(final_dest_path) == 0
     ):
         os.system("curl -sSf {} > {}".format(url, final_dest_path))
     else:
@@ -32,11 +33,13 @@ def download_files(urls: list, local_path_to_home: str, destination_file_path: s
         local_path_to_home (str): The path to the local home
         destination_file_path (str): path to the destination
     """
+    final_filenames = []
 
     for url in urls:
         final_dest_path = os.path.join(local_path_to_home, destination_file_path)
+        final_filenames.append(final_dest_path)
         if not os.path.exists(final_dest_path) or (
-            os.path.exists(final_dest_path) and os.path.getsize(final_dest_path) == 0
+                os.path.exists(final_dest_path) and os.path.getsize(final_dest_path) == 0
         ):
             os.system("curl -sSf {} > {}".format(url, final_dest_path))
         else:
@@ -44,7 +47,7 @@ def download_files(urls: list, local_path_to_home: str, destination_file_path: s
 
 
 def merge_all_files(
-    files_path: str, local_path_to_home: str, destination_filename: str
+        files_path: list, local_path_to_home: str, destination_filename: str
 ):
     """A function to merge all download files
 

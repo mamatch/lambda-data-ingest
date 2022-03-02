@@ -2,7 +2,7 @@
 __pycache__
 
 # airflow logs
-airflow/logs/
+airflow_home/logs/
 
 
 # terraform
